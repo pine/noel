@@ -3,6 +3,7 @@ package main
 import (
     "os"
     "fmt"
+    "flag"
     
     "github.com/wsxiaoys/terminal"
     "github.com/shiena/ansicolor"
@@ -85,6 +86,10 @@ func getTestPkgs(hackPkgs []string, changedPkgs []string, pkgs *pkgs) []string {
 }
 
 func main() {
+    var install bool
+    flag.BoolVar(&install, "install", false, "Install package")
+    flag.Parse()
+    
     stdout := terminal.TerminalWriter { ansicolor.NewAnsiColorWriter(os.Stdout) }
     
     fmt.Println("Start Noel v" + Version + " [Chocolatey Packages Test Runner]\n")
@@ -173,7 +178,7 @@ func main() {
         if contains(pkgs.Manual, pkg) {
             fmt.Println("Manual tests")
             
-            if err := testManual(pkg); err != nil {
+            if err := testManual(pkg, install); err != nil {
                 printError(stdout, err, "Failed")
                 break
             
