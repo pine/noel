@@ -6,8 +6,8 @@ import (
 )
 
 func checkEnv() error {
-    fmt.Println("# checking cpack")
-    _, err := exec.LookPath("cpack")
+    fmt.Println("# checking choco")
+    _, err := exec.LookPath("choco")
     
     if err != nil {
         return err

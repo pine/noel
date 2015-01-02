@@ -19,8 +19,8 @@ func testManual(name string) error {
         fmt.Println(dir)
     }
     
-    fmt.Println("> cpack")
-    cmd := exec.Command("cpack")
+    fmt.Println("> choco pack")
+    cmd := exec.Command("choco", "pack")
     cmd.Stdout = os.Stdout
     cmd.Stderr = os.Stderr
     
