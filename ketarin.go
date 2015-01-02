@@ -77,7 +77,14 @@ func getKetarinDatabaseBackup() string {
 }
 
 func SwapKetarinDatabase() error {
-    dbFile, err := os.Open(getKetarinDatabase())
+    dbPath := getKetarinDatabase()
+    
+    // スワップ対象が存在しない場合
+    if _, err := os.Stat(dbPath); err != nil {
+        return nil
+    }
+    
+    dbFile, err := os.Open(dbPath)
     
     if err != nil {
         return err
@@ -113,13 +120,10 @@ func SwapKetarinDatabase() error {
 }
 
 func RestoreKetarinDatabase() error {
-    dbFile, err := os.Create(getKetarinDatabase())
-    
-    if err != nil {
-        return err
+    // リストア対象が存在しない場合
+    if _, err := os.Stat(DatabaseFileName); err != nil {
+        return nil
     }
-    
-    defer dbFile.Close()
     
     swapFile, err := os.Open(DatabaseFileName)
     
@@ -129,12 +133,27 @@ func RestoreKetarinDatabase() error {
     
     defer swapFile.Close()
     
+    dbFile, err := os.Create(getKetarinDatabase())
+    
+    if err != nil {
+        return err
+    }
+    
+    defer dbFile.Close()
+    
+    
     _, err = io.Copy(dbFile, swapFile)
     return err
 }
 
 func ClearKetarinDatabase() error {
     dbPath := getKetarinDatabase()
+    
+    // ファイルが存在しない場合
+    if _, err := os.Stat(dbPath); err != nil {
+        return nil
+    }
+    
     return os.Remove(dbPath)
 }
 
