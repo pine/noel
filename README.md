@@ -2,6 +2,8 @@ Noel
 --------
 [![Circle CI](https://circleci.com/gh/pine613/noel.svg?style=svg)](https://circleci.com/gh/pine613/noel)
 
+![Noel](noel.jpg)
+
 Noel is not a Blu-ray disc. Noel is a test runnner of chocolatey packages!
 
 ## Usage
