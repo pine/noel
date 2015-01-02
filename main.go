@@ -122,7 +122,7 @@ func main() {
     
     fmt.Print("Detect hacks of commit messages: ")
     
-    hackPkgs, _ := getPackageNamesOfCommitMessage()
+    hackPkgs, err := getPackageNamesOfCommitMessage()
     
     if err != nil {
         printError(stdout, err, "Failed")
