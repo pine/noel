@@ -10,12 +10,28 @@ import (
     "time"
     "errors"
     "encoding/xml"
+    "regexp"
 )
 
 var KetarinAppDataDirName = "Ketarin"
 var DatabaseFileName = "jobs.db"
 var ChocopkgupConfigPath = `C:\tools\ChocolateyPackageUpdater\chocopkgup.exe.config`
 var SettingFileName = "Ketarin.xml"
+var PreUpdateCommand = `chocopkgup /p {appname} /v {version} /u "{preupdate-url}" /u64 "{url64}" /pp "{file}" /disablepush`
+
+// 最初の行に改行を入れないこと!!
+var CustomColumns = `System.String:<?xml version="1.0" encoding="utf-16"?>
+<dictionary>
+  <item>
+    <key>
+      <string>Version</string>
+    </key>
+    <value>
+      <string>{version}</string>
+    </value>
+  </item>
+</dictionary>
+`
 
 type AppSettings struct {
     XMLName xml.Name `xml:"appSettings"`
@@ -190,7 +206,7 @@ func RunKetarin() error {
     }
     
     logPath := filepath.Join(tmpDir, "ketarin.log")
-    cmd := exec.Command("ketarin", "/silent", "/notify", "/log=" + logPath)
+    cmd := exec.Command("ketarin", "/silent", "/log=" + logPath)
     
     if err := cmd.Run(); err != nil {
         return err
@@ -213,6 +229,7 @@ func RunKetarin() error {
 
 func InstallKetarinSetting(data TestData) error {
     settingPath := filepath.Join(data.Name, SettingFileName)
+    fmt.Println(settingPath)
     
     if _, err := os.Stat(settingPath); err != nil {
         return errors.New("Setting file not found!\n" + settingPath)
@@ -225,4 +242,148 @@ func InstallKetarinSetting(data TestData) error {
     }
     
     return WaitKetarinProcess()
+}
+
+func UpdateKetarinSettings() error {
+    db := NewKetarinDb(getKetarinDatabase())
+    defer db.Close()
+    
+    if err := db.SetSetting("PreUpdateCommand", PreUpdateCommand); err != nil {
+        return err
+    }
+    
+    return db.SetSetting("CustomColumns", CustomColumns)
+}
+
+func FixPkgTargetPath(name string) error {
+    filePath := filepath.Join(name, SettingFileName)
+    xml, err := ioutil.ReadFile(filePath)
+    
+    if err != nil {
+        return err
+    }
+    
+    pattern, err := regexp.Compile(`<TargetPath>[^<]+</TargetPath>`)
+    
+    if err != nil {
+        return err
+    }
+    
+    tempdir, err := ioutil.TempDir("", name)
+    
+    if err != nil {
+        return err
+    }
+    fmt.Println(tempdir)
+    
+    targetPath := fmt.Sprintf(`<TargetPath>%s</TargetPath>`, tempdir)
+    replaced := pattern.ReplaceAllString(string(xml), targetPath)
+    
+    return ioutil.WriteFile(filePath, []byte(replaced), os.ModePerm)
+}
+
+func ClearOutputDir() error {
+    return os.RemoveAll("_output")
+}
+
+func InstallKetarinPkg(data TestData) error {
+    pkgDir := filepath.Join("_output", data.Name)
+    infos, err := ioutil.ReadDir(pkgDir)
+    
+    if err != nil {
+        return err
+    }
+    
+    for _, info := range(infos) {
+        name := info.Name()
+        
+        if info.IsDir() {
+            if matched, _ := regexp.MatchString(`^[0-9\.]+$`, name); matched {
+                dir := filepath.Join(pkgDir, name)
+                
+                if err := os.Chdir(dir); err != nil {
+                    return err
+                }
+                
+                return InstallChocoPkg(data)
+            }
+        }
+    }
+    
+    return nil
+}
+
+func TestKetarinAutomatic(data TestData) error {
+    fmt.Println("> cd")
+    wd, err := os.Getwd();
+    if err != nil {
+        return err
+    } else {
+        fmt.Println(wd)
+    }
+    
+    fmt.Println("> Clear output dir")
+    if err := ClearOutputDir(); err != nil {
+        return err
+    }
+    
+    
+    fmt.Println("> Swap Ketarin database")
+    if err := SwapKetarinDatabase(); err != nil {
+        return err
+    }
+    
+    fmt.Println("> Clear ketarin database")
+    if err := ClearKetarinDatabase(); err != nil {
+        return err
+    }
+    
+    defer func(){
+        fmt.Println("> Restore ketarin database")
+        RestoreKetarinDatabase()
+    }()
+    
+    fmt.Println("> Set chocopkgup PackageFolder")
+    if err := SetChocopkgupPackageFolder(wd); err != nil {
+        return err
+    }
+    
+    fmt.Println("> Fix Package TargetPath")
+    if err := FixPkgTargetPath(data.Name); err != nil {
+        fmt.Println(err)
+    }
+    
+    fmt.Println("> Install ketarin settings")
+    
+    if err := InstallKetarinSetting(data); err != nil {
+        fmt.Println(err)
+        return err
+    }
+    
+    fmt.Println("> Update ketarin settings")
+    
+    if err := UpdateKetarinSettings(); err != nil {
+        fmt.Println(err)
+        return err
+    }
+    
+    fmt.Println("> Run ketarin")
+    
+    if err := RunKetarin(); err != nil {
+        fmt.Println(err)
+        return err
+    }
+    
+    if data.Install {
+        if err := InstallKetarinPkg(data); err != nil {
+            return err
+        }
+    }
+    
+    fmt.Println("> cd")
+    if err := os.Chdir(wd); err != nil {
+        return err
+    }
+    
+    return nil
 }

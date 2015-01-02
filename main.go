@@ -118,7 +118,7 @@ func main() {
     
     // ----------------------------------------------------
     
-    fmt.Println("Detect hacks of commit messages: ")
+    fmt.Print("Detect hacks of commit messages: ")
     
     hackPkgs, _ := getPackageNamesOfCommitMessage()
     
@@ -170,9 +170,6 @@ func main() {
     
     fmt.Println("\n\nStart tests:\n")
     
-    testAutomatic(TestData { Name: "opera-developer", Install: true, Timeout: 60 })
-    return
-    
     testPkgs := getTestPkgs(hackPkgs, changedPkgs, pkgs)
     
     for _, pkg := range(testPkgs) {
@@ -187,7 +184,7 @@ func main() {
         if contains(pkgs.Manual, pkg) {
             fmt.Println("Manual tests")
             
-            if err := testManual(data); err != nil {
+            if err := TestManual(data); err != nil {
                 printError(stdout, err, "Failed")
                 return
             
@@ -199,7 +196,14 @@ func main() {
         
         if contains(pkgs.Automatic, pkg) {
             fmt.Println("Automatic tests")
-            printSkip(stdout, "Skip")
+            
+            if err := TestAutomatic(data); err != nil {
+                printError(stdout, err, "Failed")
+                return
+            
+            } else {
+                printOk(stdout, "Succeeded\n")
+            }
             continue
         }
         
