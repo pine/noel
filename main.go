@@ -8,7 +8,7 @@ import (
     "github.com/shiena/ansicolor"
 )
 
-var Version = "1.0.0"
+var Version = "1.0.0-beta"
 var SettingFile = "noel.json"
 
 func getChangedPackages() ([]string, error) {
@@ -88,8 +88,18 @@ func main() {
         fmt.Println("    " + pkg)
     }
     
-    fmt.Println("\nStart tests:\n")
+    fmt.Printf("\n    %d package", len(changedPkgs))
     
+    if len(changedPkgs) > 1 {
+        fmt.Print("s")
+    }
+    
+    if len(changedPkgs) == 0 {
+        printSkip(stdout, "\n\nNo changed\n\n")
+        return
+    }
+    
+    fmt.Println("\n\nStart tests:\n")
     
     for _, pkg := range(changedPkgs) {
         fmt.Print("Test for [" + pkg + "]: ")
