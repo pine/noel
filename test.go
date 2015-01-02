@@ -4,9 +4,11 @@ import (
     "fmt"
     "os"
     "os/exec"
+    "time"
+    "errors"
 )
 
-func testManual(name string, install bool) error {
+func testManual(name string, install bool, timeout int) error {
     fmt.Println("> cd " + name)
     if err := os.Chdir(name); err != nil {
         return err
@@ -38,9 +40,26 @@ func testManual(name string, install bool) error {
         if err := cmd.Start(); err != nil {
             return err
         }
+        done := make(chan error, 1)
         
-        if err := cmd.Wait(); err != nil {
-            return err
+        go func(){
+            done <- cmd.Wait()
+        }()
+        
+        select {
+            case <- time.After(time.Duration(timeout) * time.Second):
+                if err := cmd.Process.Kill(); err != nil {
+                    <- done
+                    return err
+                }
+                
+                <- done
+                return errors.New("Timeout Error")
+            
+            case err := <- done:
+                if err != nil {
+                    return err
+                }
         }
     }
     

@@ -178,9 +178,9 @@ func main() {
         if contains(pkgs.Manual, pkg) {
             fmt.Println("Manual tests")
             
-            if err := testManual(pkg, install); err != nil {
+            if err := testManual(pkg, install, 60); err != nil {
                 printError(stdout, err, "Failed")
-                break
+                return
             
             } else {
                 printOk(stdout, "Succeeded\n")
