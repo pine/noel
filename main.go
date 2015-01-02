@@ -99,7 +99,7 @@ func main() {
     fmt.Println("Check environment:")
     if err := checkEnv(); err != nil {
         printError(stdout, err, "Failed")
-        return
+        os.Exit(1)
     } else {
         printOk(stdout, "\nSucceeded\n")
     }
@@ -111,7 +111,7 @@ func main() {
     
     if err != nil {
         printError(stdout, err, "Failed")
-        return
+        os.Exit(1)
     } else {
         printOk(stdout, "Succeeded")
     }
@@ -124,7 +124,7 @@ func main() {
     
     if err != nil {
         printError(stdout, err, "Failed")
-        return
+        os.Exit(1)
     } else {
         printOk(stdout, "Succeeded")
     }
@@ -146,7 +146,7 @@ func main() {
     
     if err != nil {
         printError(stdout, err, "Failed")
-        return
+        os.Exit(1)
     } else {
         printOk(stdout, "Succeeded")
     }
@@ -186,7 +186,7 @@ func main() {
             
             if err := TestManual(data); err != nil {
                 printError(stdout, err, "Failed")
-                return
+                os.Exit(1)
             
             } else {
                 printOk(stdout, "Succeeded\n")
@@ -199,7 +199,7 @@ func main() {
             
             if err := TestAutomatic(data); err != nil {
                 printError(stdout, err, "Failed")
-                return
+                os.Exit(1)
             
             } else {
                 printOk(stdout, "Succeeded\n")
