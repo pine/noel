@@ -19,7 +19,7 @@ func getPackageNamesOfCommitMessage() ([]string, error) {
         return nil, err
     }
     
-    if pattern, err := regexp.Compile(`\[([A-Za-z<>_\.-]+)\]`); err != nil {
+    if pattern, err := regexp.Compile(`\[([A-Za-z0-9<>_\.-]+)\]`); err != nil {
         return nil, err
     } else {
         matches := pattern.FindAllStringSubmatch(msg, -1)
