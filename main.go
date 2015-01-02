@@ -170,15 +170,24 @@ func main() {
     
     fmt.Println("\n\nStart tests:\n")
     
+    testAutomatic(TestData { Name: "opera-developer", Install: true, Timeout: 60 })
+    return
+    
     testPkgs := getTestPkgs(hackPkgs, changedPkgs, pkgs)
     
     for _, pkg := range(testPkgs) {
         fmt.Print("Test for [" + pkg + "]: ")
         
+        data := TestData {
+            Name: pkg,
+            Install: install,
+            Timeout: 60,
+        }
+        
         if contains(pkgs.Manual, pkg) {
             fmt.Println("Manual tests")
             
-            if err := testManual(pkg, install, 60); err != nil {
+            if err := testManual(data); err != nil {
                 printError(stdout, err, "Failed")
                 return
             

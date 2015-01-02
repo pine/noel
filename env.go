@@ -19,5 +19,10 @@ func checkEnv() error {
         return err
     }
     
+    fmt.Println("# checking powershell")
+    if _, err := exec.LookPath("powershell"); err != nil {
+        return err
+    }
+    
     return nil
 }
