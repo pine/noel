@@ -6,6 +6,7 @@ import (
     
     "github.com/wsxiaoys/terminal"
     "github.com/shiena/ansicolor"
+    "gopkg.in/fatih/set.v0"
 )
 
 var Version = "1.0.0-beta"
@@ -49,10 +50,46 @@ func printError(w terminal.TerminalWriter, err error, msg string) {
         Reset()
 }
 
+func getAllPackages(pkgs *pkgs) []string {
+    allPkgs := pkgs.Manual
+    
+    for _, pkg := range(pkgs.Automatic) {
+        allPkgs = append(allPkgs, pkg)
+    }
+    
+    return allPkgs
+}
+
+func getTestPkgs(hackPkgs []string, changedPkgs []string, pkgs *pkgs) []string {
+    testPkgs := set.New()
+    
+    for _, pkg := range(changedPkgs) {
+        testPkgs.Add(pkg)
+    }
+    
+    for _, pkg := range(hackPkgs) {
+        if pkg == "<all>" {
+           allPkgs := getAllPackages(pkgs)
+           
+           for _, pkgByConf := range(allPkgs) {
+               testPkgs.Add(pkgByConf)
+           }
+           
+           continue
+        }
+        
+        testPkgs.Add(pkg)
+    }
+    
+    return set.StringSlice(testPkgs)
+}
+
 func main() {
     stdout := terminal.TerminalWriter { ansicolor.NewAnsiColorWriter(os.Stdout) }
     
     fmt.Println("Start Noel v" + Version + " [Chocolatey Packages Test Runner]\n")
+    
+    // ----------------------------------------------------
     
     fmt.Println("Check environment:")
     if err := checkEnv(); err != nil {
@@ -61,6 +98,8 @@ func main() {
     } else {
         printOk(stdout, "\nSucceeded\n")
     }
+    
+    // ----------------------------------------------------
     
     stdout.Print("Load settings: ")
     pkgs, err := loadPkgs("noel.json")
@@ -72,6 +111,31 @@ func main() {
         printOk(stdout, "Succeeded")
     }
     
+    // ----------------------------------------------------
+    
+    fmt.Println("Detect hacks of commit messages: ")
+    
+    hackPkgs, _ := getPackageNamesOfCommitMessage()
+    
+    if err != nil {
+        printError(stdout, err, "Failed")
+        return
+    } else {
+        printOk(stdout, "Succeeded")
+    }
+    
+    // ----------------------------------------------------
+    
+    fmt.Println("\nHack packages:")
+    
+    for _, pkg := range(hackPkgs) {
+        fmt.Println("    " + pkg)
+    }
+    
+    fmt.Printf("\n    %d packages\n\n", len(hackPkgs))
+    
+    // ----------------------------------------------------
+    
     fmt.Print("Detect package changes: ")
     changedPkgs, err := getChangedPackages()
     
@@ -82,26 +146,28 @@ func main() {
         printOk(stdout, "Succeeded")
     }
     
+    // ----------------------------------------------------
+    
     fmt.Println("\nChanged packages:")
     
     for _, pkg := range(changedPkgs) {
         fmt.Println("    " + pkg)
     }
     
-    fmt.Printf("\n    %d package", len(changedPkgs))
+    fmt.Printf("\n    %d packages", len(changedPkgs))
     
-    if len(changedPkgs) > 1 {
-        fmt.Print("s")
-    }
-    
-    if len(changedPkgs) == 0 {
+    if len(changedPkgs) == 0 && len(hackPkgs) == 0 {
         printSkip(stdout, "\n\nNo changed\n\n")
         return
     }
     
+    // ----------------------------------------------------
+    
     fmt.Println("\n\nStart tests:\n")
     
-    for _, pkg := range(changedPkgs) {
+    testPkgs := getTestPkgs(hackPkgs, changedPkgs, pkgs)
+    
+    for _, pkg := range(testPkgs) {
         fmt.Print("Test for [" + pkg + "]: ")
         
         if contains(pkgs.Manual, pkg) {
