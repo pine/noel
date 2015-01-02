@@ -87,7 +87,9 @@ func getTestPkgs(hackPkgs []string, changedPkgs []string, pkgs *pkgs) []string {
 
 func main() {
     var install bool
+    var timeout int
     flag.BoolVar(&install, "install", false, "Install package")
+    flag.IntVar(&timeout, "timeout", 60 * 10, "Install timeout")
     flag.Parse()
     
     stdout := terminal.TerminalWriter { ansicolor.NewAnsiColorWriter(os.Stdout) }
@@ -178,7 +180,7 @@ func main() {
         data := TestData {
             Name: pkg,
             Install: install,
-            Timeout: 60,
+            Timeout: timeout,
         }
         
         if contains(pkgs.Manual, pkg) {
