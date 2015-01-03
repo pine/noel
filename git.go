@@ -35,13 +35,12 @@ func getPackageNamesOfCommitMessage() ([]string, error) {
 
 func getLastCommitMessage() (string, error) {
     cmd := exec.Command("git", "log", "-1", "--pretty=format:%s")
-    msg, err := getCommandStdout(cmd)
     
-    if err != nil {
+    if msg, err := getCommandStdout(cmd); err != nil {
         return "", err
+    } else {
+        return msg, nil
     }
-    
-    return msg, nil
 }
 
 func getChangedRootDirs(depth int) ([]string, error) {
