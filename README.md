@@ -9,6 +9,10 @@ Noel is not a Blu-ray disc. Noel is a test runner of chocolatey packages!
 ## Description
 Noel is a test runner for Chocolatey repository. Noel supports both packages of manual and automatic. It uses Ketarin as backend if builds automatic packages. Noel runs on CI.
 
+## Screenshot
+
+![cmd.exe](screenshot.png)
+
 ## Usage
 ### Create settings
 noel.json
