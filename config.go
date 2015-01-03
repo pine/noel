@@ -5,19 +5,19 @@ import (
     "encoding/json"
 )
 
-type pkgs struct {
+type Conf struct {
     Manual    []string
     Automatic []string
 }
 
-func loadPkgs(path string) (*pkgs, error) {
+func LoadConf(path string) (*Conf, error) {
     data, err := ioutil.ReadFile(path)
     
     if err != nil {
         return nil, err
     }
     
-    var pkgs pkgs
+    var pkgs Conf
     
     if err := json.Unmarshal(data, &pkgs); err != nil {
         return nil, err

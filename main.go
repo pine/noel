@@ -51,7 +51,7 @@ func printError(w terminal.TerminalWriter, err error, msg string) {
         Reset()
 }
 
-func getAllPackages(pkgs *pkgs) []string {
+func getAllPackages(pkgs *Conf) []string {
     allPkgs := pkgs.Manual
     
     for _, pkg := range(pkgs.Automatic) {
@@ -61,7 +61,7 @@ func getAllPackages(pkgs *pkgs) []string {
     return allPkgs
 }
 
-func getTestPkgs(hackPkgs []string, changedPkgs []string, pkgs *pkgs) []string {
+func getTestPkgs(hackPkgs []string, changedPkgs []string, pkgs *Conf) []string {
     testPkgs := set.New()
     
     for _, pkg := range(changedPkgs) {
@@ -109,7 +109,7 @@ func main() {
     // ----------------------------------------------------
     
     stdout.Print("Load settings: ")
-    pkgs, err := loadPkgs("noel.json")
+    pkgs, err := LoadConf("noel.json")
     
     if err != nil {
         printError(stdout, err, "Failed")
