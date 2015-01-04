@@ -9,7 +9,7 @@ GIT_BRANCH=`git name-rev --name-only HEAD`
 GIT_REV=`git rev-parse --short HEAD`
 
 mkdir dist
-mv noel.exe dist/noel_$GIT_BRANCH.exe
+mv noel.exe dist/noel.exe
 mv noel.zip dist/noel_$GIT_BRANCH.zip
 
 if [ "$GIT_BRANCH" = "master" ]; then
