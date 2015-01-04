@@ -5,6 +5,7 @@ zip noel.zip noel.exe
 
 GIT_BRANCH=`git name-rev --name-only HEAD`
 mkdir dist
+mv noel.exe dist/noel_$GIT_BRANCH.exe
 mv noel.zip dist/noel_$GIT_BRANCH.zip
 
 if [ "$GIT_BRANCH" = "master" ]; then
