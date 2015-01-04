@@ -1,6 +1,6 @@
 Noel
 --------
-[![Circle CI](https://circleci.com/gh/pine613/noel.svg?style=svg)](https://circleci.com/gh/pine613/noel)
+[![Build Status](https://drone.io/github.com/pine613/noel/status.png)](https://drone.io/github.com/pine613/noel/latest)
 
 ![Noel](noel.jpg)
 
