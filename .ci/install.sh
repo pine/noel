@@ -1,6 +1,8 @@
 #!/bin/bash
 
-sudo apt-get install gcc-mingw-w64-x86-64
+mkdir -p log
+
+sudo apt-get install gcc-mingw-w64-x86-64 > log/apt-get_mingw.log
 
 pushd ~/
 
@@ -11,6 +13,6 @@ export GOROOT="$PWD/go"
 export PATH="$GOROOT/bin:$PATH"
 
 cd $GOROOT/src
-env CGO_ENABLED=1 GOOS=windows GOARCH=amd64 CC_FOR_TARGET="x86_64-w64-mingw32-gcc -fno-stack-protector -D_FORTIFY_SOURCE=0 -lssp" ./make.bash --no-clean
+env CGO_ENABLED=1 GOOS=windows GOARCH=amd64 CC_FOR_TARGET="x86_64-w64-mingw32-gcc -fno-stack-protector -D_FORTIFY_SOURCE=0 -lssp" ./make.bash --no-clean > log/go_make_bash.log
 
 popd

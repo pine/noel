@@ -1,6 +1,8 @@
 #!/bin/bash
 
-sudo apt-get install zip
+mkdir -p log
+
+sudo apt-get install zip > log/apt-get_zip.log
 zip noel.zip noel.exe
 
 GIT_BRANCH=`git name-rev --name-only HEAD`
