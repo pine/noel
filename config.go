@@ -6,8 +6,9 @@ import (
 )
 
 type Conf struct {
-    Manual    []string
-    Automatic []string
+    Manual         []string
+    Automatic      []string
+    WithoutInstall []string
 }
 
 func LoadConf(path string) (*Conf, error) {
