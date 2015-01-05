@@ -8,9 +8,12 @@ zip noel.zip noel.exe
 GIT_BRANCH=`git name-rev --name-only HEAD`
 GIT_REV=`git rev-parse --short HEAD`
 
+echo $GIT_BRANCH
+echo $GIT_REV
+
 mkdir dist
 mv noel.exe dist/noel.exe
-mv noel.zip dist/noel_$GIT_BRANCH.zip
+mv noel.zip dist/noel.zip
 
 if [ "$GIT_BRANCH" = "master" ]; then
 	go get github.com/tcnksm/ghr
