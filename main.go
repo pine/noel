@@ -175,12 +175,21 @@ func main() {
     testPkgs := getTestPkgs(hackPkgs, changedPkgs, pkgs)
     
     for _, pkg := range(testPkgs) {
-        fmt.Print("Test for [" + pkg + "]: ")
+        fmt.Print("Test for [" + pkg + "]")
         
         data := TestData {
             Name: pkg,
             Install: install,
             Timeout: timeout,
+        }
+        if contains(pkgs.WithoutInstall, pkg) {
+            data.Install = false
+        }
+        
+        if !data.Install {
+            fmt.Print(" without install: ")
+        } else {
+            fmt.Print(": ")
         }
         
         if contains(pkgs.Manual, pkg) {

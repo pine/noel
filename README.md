@@ -31,5 +31,10 @@ $ cd your_chocolatey_repo
 $ noel
 ```
 
+### CI integration
+It is very easy to use Noel integrates CI. Please see my repository as sample.
+
+- [pine613/chocolatey-packages](https://github.com/pine613/chocolatey-packages)
+
 ## How to test non-changed packages
 Please include `[pkg-name]` to commit message. If you want to test all packages, please try `[<all>]` meta name.

@@ -25,6 +25,7 @@ func InstallChocoPkg(data TestData) error {
     if err := cmd.Start(); err != nil {
         return err
     }
+    
     done := make(chan error, 1)
     
     go func(){
