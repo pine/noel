@@ -10,7 +10,7 @@ import (
     "gopkg.in/fatih/set.v0"
 )
 
-var Version = "1.0.0-beta"
+var Version = "1.0.1"
 var SettingFile = "noel.json"
 
 func getChangedPackages() ([]string, error) {

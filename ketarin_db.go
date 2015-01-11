@@ -26,7 +26,7 @@ func (kdb *KetarinDb) SetSetting(name string, value string) error {
 		return err
 	}
     
-	stmt, err := tx.Prepare("INSERT INTO settings VALUES(?, ?)")
+	stmt, err := tx.Prepare("INSERT OR REPLACE INTO settings VALUES(?, ?)")
 	if err != nil {
 		return err
 	}

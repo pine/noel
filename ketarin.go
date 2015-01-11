@@ -16,7 +16,6 @@ import (
 var KetarinAppDataDirName = "Ketarin"
 var DatabaseFileName = "jobs.db"
 var ChocopkgupConfigPath = `C:\tools\ChocolateyPackageUpdater\chocopkgup.exe.config`
-var SettingFileName = "Ketarin.xml"
 var PreUpdateCommand = `chocopkgup /p {appname} /v {version} /u "{preupdate-url}" /u64 "{url64}" /pp "{file}" /disablepush`
 
 // 最初の行に改行を入れないこと!!
@@ -225,6 +224,7 @@ func RunKetarin() error {
     }
     
     logPath := filepath.Join(tmpDir, "ketarin.log")
+    fmt.Println("LogFile = " + logPath)
     cmd := exec.Command("ketarin", "/silent", "/log=" + logPath)
     
     if err := cmd.Run(); err != nil {
@@ -274,33 +274,6 @@ func UpdateKetarinSettings() error {
     return db.SetSetting("CustomColumns", CustomColumns)
 }
 
-func FixPkgTargetPath(name string) error {
-    filePath := filepath.Join(name, SettingFileName)
-    xml, err := ioutil.ReadFile(filePath)
-    
-    if err != nil {
-        return err
-    }
-    
-    pattern, err := regexp.Compile(`<TargetPath>[^<]+</TargetPath>`)
-    
-    if err != nil {
-        return err
-    }
-    
-    tempdir, err := ioutil.TempDir("", name)
-    
-    if err != nil {
-        return err
-    }
-    fmt.Println(tempdir)
-    
-    targetPath := fmt.Sprintf(`<TargetPath>%s</TargetPath>`, tempdir)
-    replaced := pattern.ReplaceAllString(string(xml), targetPath)
-    
-    return ioutil.WriteFile(filePath, []byte(replaced), os.ModePerm)
-}
-
 func ClearOutputDir() error {
     return os.RemoveAll("_output")
 }
@@ -346,7 +319,6 @@ func TestKetarinAutomatic(data TestData) error {
         return err
     }
     
-    
     fmt.Println("> Swap Ketarin database")
     if err := SwapKetarinDatabase(); err != nil {
         return err
@@ -367,8 +339,8 @@ func TestKetarinAutomatic(data TestData) error {
         return err
     }
     
-    fmt.Println("> Fix Package TargetPath")
-    if err := FixPkgTargetPath(data.Name); err != nil {
+    fmt.Println("> Update Ketarin.xml")
+    if err := UpdateKetarinXml(data.Name); err != nil {
         fmt.Println(err)
     }
     
