@@ -1,0 +1,17 @@
+{
+  "manual": [
+    "manual",
+    "package",
+    "list"
+  ],
+  "automatic": [
+    "automatic",
+    "package",
+    "list"
+  ],
+  "withoutInstall": [
+    "without",
+    "installing",
+    "test"
+  ]
+}
