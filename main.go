@@ -4,14 +4,15 @@ import (
     "os"
     "fmt"
     "flag"
+    "errors"
     
     "github.com/wsxiaoys/terminal"
     "github.com/shiena/ansicolor"
     "gopkg.in/fatih/set.v0"
 )
 
-var Version = "1.0.1"
-var SettingFile = "noel.json"
+var Version = "1.1.0"
+var SettingFiles = []string{ "noel.json", "noel.yml", "noel.yaml" }
 
 func getChangedPackages() ([]string, error) {
     return getChangedRootDirs(1)
@@ -109,10 +110,19 @@ func main() {
     // ----------------------------------------------------
     
     stdout.Print("Load settings: ")
-    pkgs, err := LoadConf("noel.json")
     
-    if err != nil {
-        printError(stdout, err, "Failed")
+    var pkgs *Conf
+    
+    for _, path := range(SettingFiles) {
+        var err error
+        
+        if pkgs, err = LoadConf(path); err == nil {
+            break
+        }
+    }
+    
+    if pkgs == nil {
+        printError(stdout, errors.New("Can't find settings"), "Failed")
         os.Exit(1)
     } else {
         printOk(stdout, "Succeeded")
