@@ -1,14 +1,17 @@
 package main
 
 import (
+    "strings"
     "io/ioutil"
     "encoding/json"
+    
+    "gopkg.in/yaml.v2"
 )
 
 type Conf struct {
     Manual         []string
     Automatic      []string
-    WithoutInstall []string
+    WithoutInstall []string `yaml:"withoutInstall"`
 }
 
 func LoadConf(path string) (*Conf, error) {
@@ -20,7 +23,14 @@ func LoadConf(path string) (*Conf, error) {
     
     var pkgs Conf
     
-    if err := json.Unmarshal(data, &pkgs); err != nil {
+    unmarshal := json.Unmarshal
+    
+    // 拡張子で判定
+    if strings.HasSuffix(path, ".yaml") || strings.HasSuffix(path, ".yml") {
+        unmarshal = yaml.Unmarshal
+    }
+    
+    if err := unmarshal(data, &pkgs); err != nil {
         return nil, err
     }
     
